@@ -1,0 +1,19 @@
+.main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  max-width: 1440px;
+  margin: 0 auto;
+  gap: 20px;
+  height: max-content;
+
+  .dropzone{
+    background-color: red;
+    min-height: 100px;
+  }
+
+  .sideBar{
+    background-color: blue;
+    height: 100%;
+  }
+}
+

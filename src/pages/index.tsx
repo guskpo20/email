@@ -1,11 +1,104 @@
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
+import styles from "@/styles/Home.module.scss";
+
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
+
+  
+
+  useEffect(() => {
+  //@ts-ignore
+  const dropzones = [...document.querySelectorAll(".dropzone")];
+  //@ts-ignore
+  const draggables = [...document.querySelectorAll(".draggable")];
+
+  function getDragAfterElement(container: any, y:any) {
+    const draggableElements = [
+      ...container.querySelectorAll(".draggable:not(.is-dragging)")
+    ];
+
+    return draggableElements.reduce(
+      (closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+          return {
+            offset,
+            element: child
+          };
+        } else {
+          return closest;
+        }
+      },
+      { offset: Number.NEGATIVE_INFINITY }
+    ).element;
+  }
+
+  draggables.forEach((draggable) => {
+    draggable.addEventListener("dragstart", (e: any) => {
+      draggable.classList.add("is-dragging");
+    });
+
+    draggable.addEventListener("dragend", (e: any) => {
+      const copiaElementoConDescendientes = draggable?.cloneNode(true);
+      draggable.classList.remove("is-dragging");
+      if(!copiaElementoConDescendientes.classList.contains("is-dragging")){
+        copiaElementoConDescendientes.classList.add("already-dragged")
+        agregarItem(copiaElementoConDescendientes, e)
+      }
+    });
+  });
+
+  dropzones.forEach((zone) => {
+    zone.addEventListener("dragover", (e: any) => {
+      e.preventDefault();
+      const draggable = document.querySelector(".is-dragging");
+      
+      if (draggable?.classList.contains("already-dragged")) {
+        console.log("algo")
+        const afterElement = getDragAfterElement(zone, e.clientY);
+  
+        if (afterElement === null) {
+          zone.appendChild(draggable);
+        } else {
+          zone.insertBefore(draggable, afterElement);
+        }
+      }else{
+        console.log("nada")
+      }
+    });
+  });
+
+  const agregarItem = (item: any, e: any) => {
+      let zone = dropzones[0]
+      const afterElement = getDragAfterElement(zone, e.clientY);
+      console.log(item);
+      if (afterElement === null) {
+        zone.appendChild(item);
+      } else {
+        zone.insertBefore(item, afterElement);
+      }
+      
+      item.addEventListener("dragstart", (e: any) => {
+        item.classList.add("is-dragging");
+      });
+      item.addEventListener("dragend", (e: any) => {
+        item.classList.remove("is-dragging");
+      });
+      
+  }
+  
+}, [])
+
+  
+
+
   return (
     <>
       <Head>
@@ -15,98 +108,15 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{" "}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
+        <div className={`${styles.dropzone} dropzone target`}>
+          
         </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+        <div className={`${styles.sideBar} source`}>
+          <div className="draggable" id="drag-1" draggable="true">drag-1</div>
+          <div className="draggable" id="drag-2" draggable="true">drag-2</div>
+          <div className="draggable" id="drag-3" draggable="true">drag-3</div>
+          <div className="draggable" id="drag-4" draggable="true">drag-4</div>
+          <div className="draggable" id="drag-5" draggable="true">drag-5</div>
         </div>
       </main>
     </>
