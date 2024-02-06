@@ -1,18 +1,22 @@
 .main {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 2fr 1fr;
   max-width: 1440px;
   margin: 0 auto;
   gap: 20px;
   height: max-content;
 
+  .options{
+    border: 1px solid orange;
+  }
+
   .dropzone{
-    background-color: red;
+    border: 1px solid red;
     min-height: 100px;
   }
 
   .sideBar{
-    background-color: blue;
+    border: 1px solid blue;
     height: 100%;
   }
 }
